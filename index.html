@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دردشة فايرباس</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- شاشة التحقق -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loader"></div>
+        <p>جاري التحميل...</p>
+    </div>
+
+    <!-- شاشة المصادقة -->
+    <div class="auth-container" id="auth-container">
+        <div class="auth-card">
+            <div class="logo">
+                <i class="fas fa-comments"></i>
+                <h1>دردشة فايرباس</h1>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" id="login-tab">تسجيل الدخول</button>
+                <button class="tab-btn" id="signup-tab">إنشاء حساب</button>
+            </div>
+            
+            <form id="login-form" class="auth-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="primary-btn">تسجيل الدخول</button>
+            </form>
+            
+            <form id="signup-form" class="auth-form hidden">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="signup-phone" placeholder="رقم الهاتف (اختياري)">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signup-password" placeholder="كلمة المرور" required minlength="6">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signup-confirm-password" placeholder="تأكيد كلمة المرور" required>
+                </div>
+                <button type="submit" class="primary-btn">إنشاء حساب</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>بالاستمرار، أنت توافق على <a href="#">الشروط</a> و<a href="#">الخصوصية</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة إعداد الملف -->
+    <div class="setup-container hidden" id="setup-container">
+        <div class="setup-card">
+            <div class="setup-header">
+                <h1><i class="fas fa-user-cog"></i> إعداد الملف الشخصي</h1>
+                <p>اختر معلوماتك الأساسية للبدء</p>
+            </div>
+            
+            <div class="avatar-section">
+                <h2>اختر صورتك:</h2>
+                <div class="avatar-grid">
+                    <div class="avatar-option" data-avatar="1">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="Avatar 1">
+                    </div>
+                    <div class="avatar-option" data-avatar="2">
+                        <img src="https://i.pravatar.cc/150?img=2" alt="Avatar 2">
+                    </div>
+                    <div class="avatar-option" data-avatar="3">
+                        <img src="https://i.pravatar.cc/150?img=3" alt="Avatar 3">
+                    </div>
+                    <div class="avatar-option" data-avatar="4">
+                        <img src="https://i.pravatar.cc/150?img=4" alt="Avatar 4">
+                    </div>
+                    <div class="avatar-option" data-avatar="5">
+                        <img src="https://i.pravatar.cc/150?img=5" alt="Avatar 5">
+                    </div>
+                </div>
+                <button class="primary-btn" id="upload-avatar-btn" style="margin-top: 15px;">
+                    <i class="fas fa-upload"></i> رفع صورة من الجهاز
+                </button>
+                <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+            </div>
+            
+            <div class="username-section">
+                <h2>اختر اسم المستخدم:</h2>
+                <div class="username-input">
+                    <span>@</span>
+                    <input type="text" id="username" placeholder="اسم المستخدم" required>
+                    <div class="check-icon hidden" id="username-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <p class="error-msg" id="username-error"></p>
+            </div>
+            
+            <button class="primary-btn" id="complete-btn">إكمال الإعداد</button>
+        </div>
+    </div>
+
+    <!-- شاشة الدردشة الرئيسية -->
+    <div class="chat-container hidden" id="chat-container">
+        <!-- الشريط الجانبي -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <img id="user-avatar" src="" alt="User Avatar">
+                    <div>
+                        <span id="user-username"></span>
+                        <small id="user-status"></small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="ابحث عن مستخدم...">
+            </div>
+            
+            <div class="contacts-list" id="contacts-list">
+                <!-- جهات الاتصال تظهر هنا -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <button id="edit-profile-btn">
+                    <i class="fas fa-user-edit"></i> تعديل الملف
+                </button>
+                <button id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
+            </div>
+        </div>
+        
+        <!-- منطقة الدردشة -->
+        <div class="chat-area">
+            <div class="chat-header" id="chat-header">
+                <div class="empty-chat">
+                    <i class="fas fa-comment-dots"></i>
+                    <h2>مرحبًا بك في دردشة فايرباس</h2>
+                    <p>اختر محادثة لبدء الدردشة</p>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messages-container">
+                <!-- الرسائل تظهر هنا -->
+            </div>
+            
+            <div class="message-input-container">
+                <button class="attachment-btn" id="attachment-btn">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <input type="text" id="message-input" placeholder="اكتب رسالة هنا..." disabled>
+                <button class="send-btn" id="send-btn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل الملف -->
+    <div class="modal hidden" id="profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>تعديل الملف الشخصي</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="avatar-section">
+                    <h3>صورة الملف:</h3>
+                    <div class="avatar-grid">
+                        <div class="avatar-option" data-avatar="1">
+                            <img src="https://i.pravatar.cc/150?img=1" alt="Avatar 1">
+                        </div>
+                        <div class="avatar-option" data-avatar="2">
+                            <img src="https://i.pravatar.cc/150?img=2" alt="Avatar 2">
+                        </div>
+                        <div class="avatar-option" data-avatar="3">
+                            <img src="https://i.pravatar.cc/150?img=3" alt="Avatar 3">
+                        </div>
+                        <div class="avatar-option" data-avatar="4">
+                            <img src="https://i.pravatar.cc/150?img=4" alt="Avatar 4">
+                        </div>
+                        <div class="avatar-option" data-avatar="5">
+                            <img src="https://i.pravatar.cc/150?img=5" alt="Avatar 5">
+                        </div>
+                    </div>
+                    <button class="primary-btn" id="modal-upload-avatar-btn" style="margin-top: 15px;">
+                        <i class="fas fa-upload"></i> رفع صورة من الجهاز
+                    </button>
+                    <input type="file" id="modal-avatar-upload" accept="image/*" style="display: none;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modal-username">اسم المستخدم:</label>
+                    <div class="username-input">
+                        <span>@</span>
+                        <input type="text" id="modal-username" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modal-status">الحالة:</label>
+                    <input type="text" id="modal-status" placeholder="ماذا تفعل الآن؟">
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="secondary-btn close-modal">إلغاء</button>
+                <button class="primary-btn" id="save-profile-btn">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة المرفقات -->
+    <div class="modal hidden" id="attachment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إرسال مرفق</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="attachment-options">
+                    <div class="attachment-option" id="send-photo">
+                        <i class="fas fa-image"></i>
+                        <span>صورة</span>
+                        <input type="file" id="photo-input" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="attachment-option" id="send-video">
+                        <i class="fas fa-video"></i>
+                        <span>فيديو</span>
+                        <input type="file" id="video-input" accept="video/*" style="display: none;">
+                    </div>
+                    <div class="attachment-option" id="send-audio">
+                        <i class="fas fa-microphone"></i>
+                        <span>تسجيل صوتي</span>
+                        <input type="file" id="audio-input" accept="audio/*" style="display: none;">
+                    </div>
+                    <div class="attachment-option" id="send-file">
+                        <i class="fas fa-file"></i>
+                        <span>ملف</span>
+                        <input type="file" id="file-input" style="display: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="secondary-btn close-modal">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة حظر المستخدم -->
+    <div class="modal hidden" id="block-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>حظر المستخدم</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="block-confirm">
+                    <p>هل أنت متأكد أنك تريد حظر هذا المستخدم؟ لن يتمكن من مراسلتك بعد الآن.</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="secondary-btn close-modal">إلغاء</button>
+                <button class="primary-btn" id="confirm-block-btn">حظر</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    
+    <script src="script2.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
