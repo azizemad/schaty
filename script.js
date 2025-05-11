@@ -585,42 +585,72 @@
 
     // تحميل الرسائل
     function loadMessages(userId) {
-        const chatId = generateChatId(currentUser.uid, userId);
+    const chatId = generateChatId(currentUser.uid, userId);
+    
+    database.ref('chats/' + chatId + '/messages').on('value', snapshot => {
+        messagesContainer.innerHTML = '';
         
-        database.ref('chats/' + chatId + '/messages').on('value', snapshot => {
-            messagesContainer.innerHTML = '';
+        if (snapshot.exists()) {
+            const messages = [];
             
-            if (snapshot.exists()) {
-                const messages = [];
-                
-                snapshot.forEach(messageSnapshot => {
-                    messages.push({
-                        id: messageSnapshot.key,
-                        ...messageSnapshot.val()
-                    });
+            snapshot.forEach(messageSnapshot => {
+                messages.push({
+                    id: messageSnapshot.key,
+                    ...messageSnapshot.val()
                 });
-                
-                // ترتيب الرسائل حسب التاريخ
-                messages.sort((a, b) => a.timestamp - b.timestamp);
-                
-                // عرض الرسائل
-                messages.forEach(message => {
-                    displayMessage(message, message.senderId === currentUser.uid);
-                });
-                
-                // التمرير إلى آخر رسالة
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            } else {
-                messagesContainer.innerHTML = `
-                    <div class="empty-messages">
-                        <i class="fas fa-comment-alt"></i>
-                        <p>ابدأ المحادثة مع @${currentChat.username}</p>
-                    </div>
-                `;
-            }
-        });
-    }
+            });
+            
+            // ترتيب الرسائل حسب التاريخ (الأقدم إلى الأحدث)
+            messages.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // عرض الرسائل
+            messages.forEach(message => {
+                displayMessage(message, message.senderId === currentUser.uid);
+            });
+            
+            // التمرير إلى آخر رسالة (الأسفل)
+            scrollToBottom();
+        } else {
+            messagesContainer.innerHTML = `
+                <div class="empty-messages">
+                    <i class="fas fa-comment-alt"></i>
+                    <p>ابدأ المحادثة مع @${currentChat.username}</p>
+                </div>
+            `;
+        }
+    });
+}
 
+// دالة جديدة للتمرير إلى الأسفل
+function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// استدعاء scrollToBottom عند إرسال رسالة جديدة
+function sendMessage() {
+    const text = messageInput.value.trim();
+    
+    if (!text || !currentChat) return;
+    
+    const chatId = generateChatId(currentUser.uid, currentChat.id);
+    const message = {
+        text: text,
+        senderId: currentUser.uid,
+        timestamp: Date.now(),
+        type: 'text'
+    };
+    
+    database.ref('chats/' + chatId + '/messages').push(message)
+        .then(() => {
+            updateChatActivity(chatId);
+            messageInput.value = '';
+            scrollToBottom(); // التمرير إلى الأسفل بعد الإرسال
+        })
+        .catch(error => {
+            console.error('Error sending message:', error);
+            alert('حدث خطأ أثناء إرسال الرسالة');
+        });
+}
     // عرض رسالة
     function displayMessage(message, isSent) {
         const messageElement = document.createElement('div');
@@ -1122,3 +1152,69 @@
             sidebar.classList.remove('hidden-mobile');
         }
     });
+    function openChat(userId, userData) {
+    currentChat = {
+        id: userId,
+        ...userData
+    };
+    
+    if (window.innerWidth <= 768) {
+        sidebar.classList.add('hidden-mobile');
+    }
+    
+    chatHeader.innerHTML = `
+        <button class="back-to-contacts" id="back-to-contacts">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="chat-partner">
+            <img src="https://i.pravatar.cc/150?img=${userData.avatar || '1'}" alt="${userData.username}">
+            <div class="chat-partner-info">
+                <h3>@${userData.username}</h3>
+                <small>${userData.isOnline ? 'متصل الآن' : 'غير متصل'}</small>
+            </div>
+        </div>
+        <div class="chat-actions">
+            <button class="block-btn" id="block-user-btn" data-user-id="${userId}">
+                <i class="fas fa-ban"></i>
+            </button>
+            <button class="delete-chat-btn" id="delete-chat-btn" data-user-id="${userId}">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    messageInput.disabled = false;
+    sendBtn.disabled = false;
+    
+    document.getElementById('back-to-contacts').addEventListener('click', () => {
+        sidebar.classList.remove('hidden-mobile');
+        chatHeader.innerHTML = `
+            <div class="empty-chat">
+                <i class="fas fa-comment-dots"></i>
+                <h2>مرحبًا بك في دردشة فايرباس</h2>
+                <p>اختر محادثة لبدء الدردشة</p>
+            </div>
+        `;
+        currentChat = null;
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+    });
+    
+    document.getElementById('block-user-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openBlockModal();
+        confirmBlockBtn.dataset.userId = userId;
+    });
+    
+    document.getElementById('delete-chat-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('هل أنت متأكد أنك تريد حذف هذه المحادثة؟')) {
+            deleteChat(userId);
+        }
+    });
+    
+    loadMessages(userId);
+    
+    // التمرير إلى الأسفل بعد تحميل الرسائل بفاصل زمني بسيط
+    setTimeout(scrollToBottom, 100);
+}
